@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Practica2</title>
+
+<script src='js/adapter.js'></script>
+<script src='http://localhost:2013/socket.io/socket.io.js'></script>
+
+
+</head>
+
+<body>
+  <div>
+    <label >Id room</label>
+    <input type="text" id="idroom"></textarea>
+    <button id="joinroom">Join room</button>
+  </div>
+  <div>
+    <video id="localVideo" width="320" height="240" autoplay></video>
+    <video id="remoteVideo" width="320" height="240" autoplay></video>
+    </div>
+  <div>
+    <textarea id="dataChannelSend" disabled placeholder="Press Start, enter some text, then press Send."></textarea>
+    <textarea id="dataChannelReceive" disabled></textarea>
+    <p>
+    <button id="sendButton">Send</button>
+  </div>
+</body>
+<script src="js/main.js"></script>
+</html>
