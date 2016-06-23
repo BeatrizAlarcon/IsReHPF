@@ -1,7 +1,18 @@
+'use strict';
+
 var socket = io.connect();
 
+socket.on('created', function (role){
+  console.log('-> created');
+});
+
 socket.on('joined', function (role){
+  console.log('-> joined');
   console.log('Making request to join role ' + role);
+});
+
+socket.on('full', function (room){
+  console.log('Room '+ room +' is full');
 });
 
 socket.on('log', function (array){
@@ -122,7 +133,8 @@ function gotLocalDescription(description){
   var msg = {roomName : room,
   user : "user",
   sdp : description};
-  socket.emit("join",JSON.stringify(msg));
+  trace("Emito create or join room= "+room);
+  socket.emit("create or join",JSON.stringify(msg));
 }
 
 function hangup() {
