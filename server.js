@@ -55,4 +55,12 @@ io.sockets.on('connection', function (socket){
 		socket.broadcast.emit('broadcast(): client ' + socket.id + ' joined room ' + room);
 
 	});
+  socket.on('offer',function (sdpOferta){
+    log("++++ entro en offer +++");
+    socket.broadcast.emit('offer', sdpOferta);
+  });
+  socket.on('answer',function (sdpAnswer){
+    log("++++ entro en answer +++");
+    socket.broadcast.emit('answer', sdpAnswer);
+  });
 });

@@ -33,7 +33,8 @@ socket.on('created', function (msg){
 socket.on('join', function (msg){
   var message = JSON.parse(msg);
   log('-> Another peer has joined to room '+ message.roomName + '; His/Her name is '+ message.userName);
-  isConnectionReady=true;
+  //isConnectionReady=true;
+  //startConnection();
 });
 
 socket.on('joined', function (msg){
@@ -51,27 +52,33 @@ socket.on('full', function (msg){
 });
 
 socket.on('log', function (array){
-  log.apply(console, array);
+  console.log.apply(console, array);
 });
 
 socket.on('offer',function (sdpOferta){
-  log("++++ entro en offer ++++")
-  localPeerConnection.setRemoteDescription(sdpOferta);
-  trace("\n+-----+\nSet Remote Description (Offer): \n"+ sdpOferta+"\n-----");
+  log("++++ Ha llegado una oferta +++")
+  localPeerConnection.setRemoteDescription(new RTCSessionDescription(sdpOferta));
+  log("\n+-----+\nSet Remote Description (Offer): \n");
+  console.log(sdpOferta);
+  log("\n-----");
   localPeerConnection.createAnswer(function(sdpAnswer){
     sdpAnswer.sdp=preferSdp(sdpAnswer.sdp);
     localPeerConnection.setLocalDescription(sdpAnswer);
-    socket.emit('asnwer',sdpAnswer);
-    trace("\n+-----+\nSet Local Description and Send Answer: \n"+ sdpAnswer+"\n-----");
+    socket.emit('answer',sdpAnswer);
+    log("\n+-----+\nSet Local Description and Send Answer: \n");
+    console.log(sdpAnswer);
+    log("\n-----");
   },function(error){
     log("offer error:" + error);
   },sdpConstraints);
 });
 
-socket.on('asnwer',function(sdpAnswer){
-  //localPeerConnection.setLocalDescription(localSDP);
-  trace("\n+-----+\nReciv Answer: \n"+ sdpAnswer+"\n-----");
-  localPeerConnection.setRemoteDescription(sdpAnswer);
+socket.on('answer',function(sdpAnswer){
+  log("++++ Ha llegado una respuesta +++")
+  log("\n+-----+\nReciv Answer: \n");
+  console.log(sdpAnswer);
+  log("\n-----");
+  localPeerConnection.setRemoteDescription(new RTCSessionDescription(sdpAnswer));
 });
 
 socket.on('sendICECandidate',function (candidate){
@@ -214,22 +221,27 @@ function handleConnection(){
     localPeerConnection.ondatachannel = gotReceiveChannel;
     trace('receiveChannel');
   }
+  if (isConnectionReady){
+    startConnection();
+  }
+}
 
-  //start connection !!!
-  //server -> create or join
-  var constraints = {'MozDontOfferDataChannel': true};
-  // temporary measure to remove Moz* constraints in Chrome
-  if (webrtcDetectedBrowser === 'chrome') {
-    for (var prop in constraints) {
-      if (prop.indexOf('Moz') !== -1) {
-        delete constraints[prop];
-      }
+function startConnection(){
+    //start connection !!!
+    //server -> create or join
+    var constraints = {'MozDontOfferDataChannel': true};
+    // temporary measure to remove Moz* constraints in Chrome
+    if (webrtcDetectedBrowser === 'chrome') {
+      for (var prop in constraints) {
+        if (prop.indexOf('Moz') !== -1) {
+          delete constraints[prop];
+        }
+       }
      }
-   }
-  constraints = mergeConstraints(constraints, sdpConstraints);
-  log('Sending offer to peer, with constraints: \n' +
-    '  \'' + JSON.stringify(constraints) + '\'.');
-  localPeerConnection.createOffer(constraints).then(doOffer).catch(errorOffer);
+    constraints = mergeConstraints(constraints, sdpConstraints);
+    log('Sending offer to peer, with constraints: \n' +
+      '  \'' + JSON.stringify(constraints) + '\'.');
+    localPeerConnection.createOffer(constraints).then(doOffer).catch(errorOffer);
 }
 
 function handleIceCandidate(event) {
@@ -300,7 +312,10 @@ function doOffer(sdpOffer){
   sdpOffer.sdp=preferSdp(sdpOffer.sdp);
   localPeerConnection.setLocalDescription(sdpOffer);
   socket.emit('offer',sdpOffer);
-  trace("\n+--Emit Offer--+\nSet Local Description and Send Offer: \n"+ sdpOffer+"\n-----");
+
+  log("\n+--Emit Offer--+\nSet Local Description and Send Offer: \n");
+  console.log(sdpOffer);
+  log("\n-----");
 }
 
 function errorOffer(error) {
