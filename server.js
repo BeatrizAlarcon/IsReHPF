@@ -3,7 +3,7 @@ var http = require('http');
 var file = new(static.Server)();
 var app = http.createServer(function (req, res) {
   file.serve(req, res);
-}).listen(2013);
+}).listen(2016);
 
 io = require('socket.io').listen(app);
 var sdp1;
@@ -30,26 +30,25 @@ io.sockets.on('connection', function (socket){
 		socket.broadcast.emit('message', message);
 	});
 
-  socket.on('create or join', function (msg) {
-    var message = JSON.parse(msg);
-
-    var room = message.roomName;
-    var numClients = clients(room);
+  socket.on('create or join', function (message) {
+    var msg = JSON.parse(message);
+    var room = msg.roomName;
+    var numClients = clients(msg.roomName);
 
     log('Room ' + room + ' has ' + numClients + ' client(s)');
 		log('Request to create or join room', room);
 
 		if (numClients == 0){
 			socket.join(room);
-			socket.emit('created', room);
+			socket.emit('created', message);
       log('Now: Room ' + room + ' has ' + clients(room) + ' client(s)');
 		} else if (numClients == 1) {
-			io.sockets.in(room).emit('join', room);
+			io.sockets.in(room).emit('join', message);
 			socket.join(room);
-			socket.emit('joined', room);
+			socket.emit('joined', message);
       log('Now: Room ' + room + ' has ' + clients(room) + ' client(s)');
 		} else { // max two clients
-			socket.emit('full', room);
+			socket.emit('full', message);
       log('Full: Room ' + room + ' has ' + clients(room) + ' client(s)');
 		}
 		socket.emit('emit(): client ' + socket.id + ' joined room ' + room);

@@ -1,25 +1,48 @@
 'use strict';
 
+//---------------------------------- AUX ---------------------------------------
+function trace(text) {
+  console.log((performance.now() / 1000).toFixed(3) + ": " + text);
+}
+//---------------------------------- end AUX -----------------------------------
+
+
+
+//--------------------------------sockets.on------------------------------------
+var isCreator=false;
+var isConnectionReady=false;
+
 var socket = io.connect();
 
-socket.on('created', function (role){
-  console.log('-> created');
+socket.on('created', function (msg){
+  var message = JSON.parse(msg);
+  console.log('-> created room '+ message.roomName + ' by '+ message.userName);
+  isCreator=true;
 });
 
-socket.on('joined', function (role){
-  console.log('-> joined');
-  console.log('Making request to join role ' + role);
+socket.on('join', function (msg){
+  var message = JSON.parse(msg);
+  console.log('-> Another peer has joined to room '+ message.roomName + '; His/Her name is '+ message.userName);
+  isConnectionReady=true;
 });
 
-socket.on('full', function (room){
-  console.log('Room '+ room +' is full');
+socket.on('joined', function (msg){
+  var message = JSON.parse(msg);
+  console.log('-> joined at room '+ message.roomName + ' user '+ message.userName);
+  isCreator=false;
+  isConnectionReady=true;
+});
+
+socket.on('full', function (msg){
+  var message = JSON.parse(msg);
+  console.log('Room '+ message.roomName  +' is full; user '+ message.userName+' is out.');
 });
 
 socket.on('log', function (array){
   console.log.apply(console, array);
 });
 
-socket.on('asnwerfor2',function(respuesta){
+/*socket.on('asnwerfor2',function(respuesta){
   localPeerConnection.setLocalDescription(localSDP);
   trace("Offer from localPeerConnection: \n" + description.sdp);
   localPeerConnection.setRemoteDescription(respuesta);
@@ -32,7 +55,7 @@ socket.on('offerfor1',function (sdpOferta){
     socket.emit('asnwerfrom1',sdpAnswer);
   }
   ,handleError);
-});
+});*/
 
 socket.on('sendICECandidate',function (candidate){
     trace('remote ice candidate');
@@ -41,68 +64,89 @@ socket.on('sendICECandidate',function (candidate){
     }
 });
 
+//-----------------------------end sockets.on-----------------------------------
+
+//---------------------------------- UI ----------------------------------------
 var room;
-var localSDP;
-var localStream, localPeerConnection;
-var sendChannel, receiveChannel;
+var user;
 
 var localVideo = document.getElementById("localVideo");
 var remoteVideo = document.getElementById("remoteVideo");
 var joinRoomButton = document.getElementById("joinroom");
 var sendButton = document.getElementById("sendButton");
 
-sendButton.disabled = true;
-sendButton.onclick = sendData;
-
 joinRoomButton.disabled = false;
 joinRoomButton.onclick = joinroom;
 
-function trace(text) {
-  console.log((performance.now() / 1000).toFixed(3) + ": " + text);
+sendButton.disabled = true;
+sendButton.onclick = sendData;
+
+function getLocalText(){
+  return document.getElementById("localText").value;
 }
 
-  function handleError(){}
+function setRemoteText(data){
+  document.getElementById("remoteText").value = data;
+}
 
 function joinroom() {
   room = document.getElementById("idroom").value;
+  user = document.getElementById("iduser").value;
   if (room !== "") {
-    console.log('Joining room ' + room);
-    start();
+    if (user !== "") {
+      console.log('Joining room ' + room + ': user '+ user);
+      //start!!!!
+      start();
+    }else{
+      alert("Please enter a username");
+    }
+  }else{
+    alert("It is not possible to access the room ''");
   }
-  //informar de que la room está ""
 }
+//-------------------------------- end UI --------------------------------------
+
+
+//---------------------------------manager--------------------------------------
+var localSDP;
+var localStream, localPeerConnection;
+var sendChannel, receiveChannel;
+
 function start() {
   trace("Requesting local stream");
   getUserMedia(
     {audio:true, video:true},
-    gotStream,
+    handleConnection,
     function(error) {
       trace("getUserMedia error: ", error);
     });
 }
 
-function gotStream(stream){
+function handleConnection(stream){
   trace("Received local stream");
   localVideo.src = URL.createObjectURL(stream);
   localStream = stream;
-  //callButton.disabled = false;
-  getSDP();
-}
-
-function getSDP() {
-  //callButton.disabled = true;
-  //hangupButton.disabled = false;
-
   if (localStream.getVideoTracks().length > 0) {
     trace('Using video device: ' + localStream.getVideoTracks()[0].label);
   }
   if (localStream.getAudioTracks().length > 0) {
     trace('Using audio device: ' + localStream.getAudioTracks()[0].label);
   }
-  var servers = null;
-  window.localPeerConnection = new RTCPeerConnection(servers,
-    {optional: []});
-  trace('Created local peer connection object localPeerConnection');
+
+  var servers = webrtcDetectedBrowser === 'firefox' ?
+                {'iceServers': [{'url':'stun:23.21.150.121'}]} :
+                ({'iceServers': [{'url': 'stun:stun.l.google.com:19302'}]},
+                {'iceServers': [{'url': 'turn:numb.viagenie.ca@b.alarcon@alumnos.urjc.escredentialpass'}]});
+  var pc_constraints = {'optional': [{'DtlsSrtpKeyAgreement': true},
+                                    {'RtpDataChannels': true}]};
+  // new RTCPeerConnection !!!
+  try{
+    window.localPeerConnection = new RTCPeerConnection(servers,pc_constraints);
+    trace('\nCreated RTCPeerConnection connection :\n'+'servers: '+ JSON.stringify(servers)+
+          '\nconstraints: '+ JSON.stringify(pc_constraints));
+  } catch (e){
+    trace('RTCPeerConnection() failed with exception: ' + e.message);
+  }
 
   try {
     // Reliable Data Channels not yet supported in Chrome
@@ -123,7 +167,10 @@ function getSDP() {
   localPeerConnection.addStream(localStream);
   trace("Added localStream to localPeerConnection");
   //consigo el SDP
-  localPeerConnection.createOffer(gotLocalDescription,handleError);
+  localPeerConnection.createOffer(gotLocalDescription,
+    function(error) {
+        trace("createOffer error: ", error);
+      });
 }
 
 function gotLocalDescription(description){
@@ -131,9 +178,8 @@ function gotLocalDescription(description){
   localSDP = description;
   //emit server
   var msg = {roomName : room,
-  user : "user",
-  sdp : description};
-  trace("Emito create or join room= "+room);
+  userName : user};
+  trace("Emito create or join room "+ msg.roomName +" by "+ msg.userName);
   socket.emit("create or join",JSON.stringify(msg));
 }
 
@@ -152,7 +198,7 @@ function gotRemoteStream(event){
 }
 
 function sendData() {
-  var data = document.getElementById("dataChannelSend").value;
+  var data = getLocalText();
   sendChannel.send(data);
   trace('Sent data: ' + data);
 }
@@ -195,7 +241,7 @@ function gotReceiveChannel(event) {
 
 function handleMessage(event) {
   trace('Received message: ' + event.data);
-  document.getElementById("dataChannelReceive").value = event.data;
+  setRemoteText(event.data);
 }
 
 function handleSendChannelStateChange() {

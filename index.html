@@ -2,33 +2,37 @@
 
 <html>
 
-<head>
+  <head>
 
-<title>Pong - BAI</title>
+    <title>Pong - BAI</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <link rel="shortcut icon" href="/pong-icon.jpg" type="image/x-icon" />
+    <link rel="stylesheet" href="css/web.css"/>
+    <script src='js/adapter.js'></script>
+    <script src='http://localhost:2016/socket.io/socket.io.js'></script>
 
-<script src='js/adapter.js'></script>
-<script src='http://localhost:2013/socket.io/socket.io.js'></script>
-<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-<link rel="shortcut icon" href="/pong-icon.jpg" type="image/x-icon" />
+  </head>
 
-</head>
-
-<body>
-  <div>
-    <label >Id room</label>
-    <input type="text" id="idroom"></textarea>
-    <button id="joinroom">Join room</button>
-  </div>
-  <div>
-    <video id="localVideo" width="320" height="240" autoplay></video>
-    <video id="remoteVideo" width="320" height="240" autoplay></video>
+  <body>
+    <div>
+      <label >Id room</label>
+      <input type="text" id="idroom"></textarea>
+      <label >User id</label>
+      <input type="text" id="iduser"></textarea>
+      <button id="joinroom">Join room</button>
     </div>
-  <div>
-    <textarea id="dataChannelSend" disabled placeholder="Press Start, enter some text, then press Send."></textarea>
-    <textarea id="dataChannelReceive" disabled></textarea>
-    <p>
-    <button id="sendButton">Send</button>
-  </div>
-</body>
-<script src="js/main.js"></script>
+    <div>
+      <video id="localVideo" width="320" height="240" autoplay></video>
+      <video id="remoteVideo" width="320" height="240" autoplay></video>
+    </div>
+    <div>
+      <textarea id="localText" disabled placeholder="Press Start, enter some text, then press Send."></textarea>
+      <textarea id="remoteText" disabled></textarea>
+      <p>
+      <button id="sendButton" disabled>Send</button>
+    </div>
+  </body>
+
+  <script src="js/main.js"></script>
+
 </html>
