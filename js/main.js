@@ -1,21 +1,39 @@
 'use strict';
 
-/*  
+/*
     ISRH Práctica Final
     Beatriz Alarcón Iniesta
     2015-2016
 
     main.js
-    versión: 0.0
+    versión: 0.1
 */
 
-var sendChannel;
+//---------------------------------- UI ----------------------------------------
 var sendButton = document.getElementById("sendButton");
 var sendTextarea = document.getElementById("dataChannelSend");
 var receiveTextarea = document.getElementById("dataChannelReceive");
 
+sendButton.disabled = true;
 sendButton.onclick = sendData;
 
+function enableMessageInterface(shouldEnable) {
+    if (shouldEnable) {
+    dataChannelSend.disabled = false;
+    dataChannelSend.focus();
+    dataChannelSend.placeholder = "";
+    sendButton.disabled = false;
+  } else {
+    dataChannelSend.disabled = true;
+    sendButton.disabled = true;
+  }
+}
+
+//-------------------------------- end UI --------------------------------------
+
+
+//------------------------------- declaraciones --------------------------------
+var sendChannel;
 var isChannelReady;
 var isInitiator;
 var isStarted;
@@ -39,55 +57,64 @@ var sdpConstraints = {'mandatory': {
   'OfferToReceiveAudio':true,
   'OfferToReceiveVideo':true }};
 
+//------------------------------- end declaraciones ----------------------------
 
+
+//---------------------------------- AUX ---------------------------------------
+// Gestionar!
 var room = location.pathname.substring(1);
 if (room === '') {
-//  room = prompt('Enter room name:');
   room = 'foo';
-} else {
-  //
 }
 
+function log(msg){
+  console.log("CM: "+msg);
+}
+//---------------------------------- end AUX -----------------------------------
+
+//--------------------------------sockets.on------------------------------------
 var socket = io.connect();
 
+// Gestionar!
 if (room !== '') {
-  console.log('Create or join room', room);
-  socket.emit('create or join', room);
+  log('Create or join room', room);
+  var msg = {roomName : room,
+      userName : "user"};
+      trace("Emito create or join room "+ msg.roomName +" by "+ msg.userName);
+      socket.emit("create or join",JSON.stringify(msg));
 }
 
 socket.on('created', function (room){
-  console.log('Created room ' + room);
+  log('Created room ' + room);
   isInitiator = true;
 });
 
 socket.on('full', function (room){
-  console.log('Room ' + room + ' is full');
+  log('Room ' + room + ' is full');
 });
 
 socket.on('join', function (room){
-  console.log('Another peer made a request to join room ' + room);
-  console.log('This peer is the initiator of room ' + room + '!');
+  log('Another peer made a request to join room ' + room);
+  log('This peer is the initiator of room ' + room + '!');
   isChannelReady = true;
 });
 
 socket.on('joined', function (room){
-  console.log('This peer has joined room ' + room);
+  log('This peer has joined room ' + room);
   isChannelReady = true;
 });
 
 socket.on('log', function (array){
-  console.log.apply(console, array);
+  log.apply(console, array);
 });
 
-////////////////////////////////////////////////
-
 function sendMessage(message){
-	console.log('Sending message: ', message);
+	log('Sending message: ', message);
   socket.emit('message', message);
 }
 
 socket.on('message', function (message){
-  console.log('Received message:', message);
+  log('Received message:', message);
   if (message === 'got user media') {
   	maybeStart();
   } else if (message.type === 'offer') {
@@ -107,15 +134,17 @@ socket.on('message', function (message){
   }
 });
 
+//----------------------------- end sockets.on ---------------------------------
 
 
+//----------------------------- manager -----------------------------------------
 var localVideo = document.querySelector('#localVideo');
 var remoteVideo = document.querySelector('#remoteVideo');
 
 function handleUserMedia(stream) {
   localStream = stream;
   attachMediaStream(localVideo, stream);
-  console.log('Adding local stream.');
+  log('Adding local stream.');
   sendMessage('got user media');
   if (isInitiator) {
     maybeStart();
@@ -123,13 +152,13 @@ function handleUserMedia(stream) {
 }
 
 function handleUserMediaError(error){
-  console.log('getUserMedia error: ', error);
+  log('getUserMedia error: ', error);
 }
 
 var constraints = {video: true};
 
 getUserMedia(constraints, handleUserMedia, handleUserMediaError);
-console.log('Getting user media with constraints', constraints);
+log('Getting user media with constraints', constraints);
 
 if (location.hostname != "localhost") {
   requestTurn('https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913');
@@ -155,11 +184,11 @@ function createPeerConnection() {
   try {
     pc = new RTCPeerConnection(pc_config, pc_constraints);
     pc.onicecandidate = handleIceCandidate;
-    console.log('Created RTCPeerConnnection with:\n' +
+    log('Created RTCPeerConnnection with:\n' +
       '  config: \'' + JSON.stringify(pc_config) + '\';\n' +
       '  constraints: \'' + JSON.stringify(pc_constraints) + '\'.');
   } catch (e) {
-    console.log('Failed to create PeerConnection, exception: ' + e.message);
+    log('Failed to create PeerConnection, exception: ' + e.message);
     alert('Cannot create RTCPeerConnection object.');
       return;
   }
@@ -219,6 +248,7 @@ function gotReceiveChannel(event) {
   sendChannel.onclose = handleReceiveChannelStateChange;
 }
 
+// Gestionar!
 function handleMessage(event) {
   trace('Received message: ' + event.data);
   receiveTextarea.value = event.data;
@@ -236,20 +266,8 @@ function handleReceiveChannelStateChange() {
   enableMessageInterface(readyState == "open");
 }
 
-function enableMessageInterface(shouldEnable) {
-    if (shouldEnable) {
-    dataChannelSend.disabled = false;
-    dataChannelSend.focus();
-    dataChannelSend.placeholder = "";
-    sendButton.disabled = false;
-  } else {
-    dataChannelSend.disabled = true;
-    sendButton.disabled = true;
-  }
-}
-
 function handleIceCandidate(event) {
-  console.log('handleIceCandidate event: ', event);
+  log('handleIceCandidate event: ', event);
   if (event.candidate) {
     sendMessage({
       type: 'candidate',
@@ -257,7 +275,7 @@ function handleIceCandidate(event) {
       id: event.candidate.sdpMid,
       candidate: event.candidate.candidate});
   } else {
-    console.log('End of candidates.');
+    log('End of candidates.');
   }
 }
 
@@ -272,7 +290,7 @@ function doCall() {
      }
    }
   constraints = mergeConstraints(constraints, sdpConstraints);
-  console.log('Sending offer to peer, with constraints: \n' +
+  log('Sending offer to peer, with constraints: \n' +
     '  \'' + JSON.stringify(constraints) + '\'.');
   pc.createOffer(setLocalAndSendMessage, errorOffer, constraints);
 }
@@ -282,7 +300,7 @@ function errorOffer(error) {
 }
 
 function doAnswer() {
-  console.log('Sending answer to peer.');
+  log('Sending answer to peer.');
   pc.createAnswer(setLocalAndSendMessage, errorAnswer, sdpConstraints);
 }
 
@@ -316,13 +334,13 @@ function requestTurn(turn_url) {
     }
   }
   if (!turnExists) {
-    console.log('Getting TURN server from ', turn_url);
+    log('Getting TURN server from ', turn_url);
     // No TURN server. Get one from computeengineondemand.appspot.com:
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function(){
       if (xhr.readyState === 4 && xhr.status === 200) {
         var turnServer = JSON.parse(xhr.responseText);
-      	console.log('Got TURN server: ', turnServer);
+      	log('Got TURN server: ', turnServer);
         pc_config.iceServers.push({
           'url': 'turn:' + turnServer.username + '@' + turnServer.turn,
           'credential': turnServer.password
@@ -336,32 +354,29 @@ function requestTurn(turn_url) {
 }
 
 function handleRemoteStreamAdded(event) {
-  console.log('Remote stream added.');
- // reattachMediaStream(miniVideo, localVideo);
+  log('Remote stream added.');
   attachMediaStream(remoteVideo, event.stream);
   remoteStream = event.stream;
-//  waitForRemoteVideo();
 }
+
 function handleRemoteStreamRemoved(event) {
-  console.log('Remote stream removed. Event: ', event);
+  log('Remote stream removed. Event: ', event);
 }
 
 function hangup() {
-  console.log('Hanging up.');
+  log('---------- Hanging up.');
   stop();
-  sendMessage('bye');
+  sendMessage('---------- bye');
 }
 
 function handleRemoteHangup() {
-  console.log('Session terminated.');
+  log('----------- Session terminated.');
   stop();
   isInitiator = false;
 }
 
 function stop() {
   isStarted = false;
-  // isAudioMuted = false;
-  // isVideoMuted = false;
   pc.close();
   pc = null;
 }
@@ -394,7 +409,7 @@ function preferOpus(sdp) {
   }
 
   // Remove CN in m line and sdp.
-  sdpLines = removeCN(sdpLines, mLineIndex);
+  // sdpLines = removeCN(sdpLines, mLineIndex);
 
   sdp = sdpLines.join('\r\n');
   return sdp;
@@ -422,7 +437,7 @@ function setDefaultCodec(mLine, payload) {
 }
 
 // Strip CN from sdp before CN constraints is ready.
-function removeCN(sdpLines, mLineIndex) {
+/*function removeCN(sdpLines, mLineIndex) {
   var mLineElements = sdpLines[mLineIndex].split(' ');
   // Scan from end for the convenience of removing an item.
   for (var i = sdpLines.length-1; i >= 0; i--) {
@@ -440,5 +455,4 @@ function removeCN(sdpLines, mLineIndex) {
 
   sdpLines[mLineIndex] = mLineElements.join(' ');
   return sdpLines;
-}
-
+}*/
