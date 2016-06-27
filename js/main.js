@@ -145,6 +145,12 @@ function handleUserMedia(stream) {
   localStream = stream;
   attachMediaStream(localVideo, stream);
   log('Adding local stream.');
+  if (localStream.getVideoTracks().length > 0) {
+    trace('Using video device: ' + localStream.getVideoTracks()[0].label);
+  }
+  if (localStream.getAudioTracks().length > 0) {
+    trace('Using audio device: ' + localStream.getAudioTracks()[0].label);
+  }
   sendMessage('got user media');
   if (isInitiator) {
     maybeStart();
@@ -155,7 +161,7 @@ function handleUserMediaError(error){
   log('getUserMedia error: ', error);
 }
 
-var constraints = {video: true};
+var constraints = {audio:true,video: true};
 
 getUserMedia(constraints, handleUserMedia, handleUserMediaError);
 log('Getting user media with constraints', constraints);
