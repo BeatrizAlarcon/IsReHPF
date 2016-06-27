@@ -1,3 +1,12 @@
+/*
+    ISRH Práctica Final
+    Beatriz Alarcón Iniesta
+    2015-2016
+
+    init.js
+    versión: 1.0
+*/
+
 var url = "js/main.js";
 $( "#joinroom" ).click(function() {
   if ($("#idroom").val() !== "") {

@@ -41,7 +41,7 @@ var room;
 var user;
 var sendChannel;
 var isChannelReady;
-var isInitiator;
+var isInitiator = false;
 var isStarted;
 var localStream;
 var pc;
@@ -75,7 +75,6 @@ function log(msg){
 //--------------------------------sockets.on------------------------------------
 var socket = io.connect();
 
-// Gestionar!
 room = roomText.value;
 user = userText.value;
 
@@ -200,6 +199,7 @@ function maybeStart() {
     if (isInitiator) {
       doCall();
     }
+    initWebGL(isInitiator);
   }
 }
 
@@ -276,10 +276,29 @@ function gotReceiveChannel(event) {
   sendChannel.onclose = handleReceiveChannelStateChange;
 }
 
-// Gestionar!
+function sendPos(r, px, py) {
+  var data = JSON.stringify({posR: r, posPx: px, posPy: py});
+  sendChannel.send(data);
+}
+
 function handleMessage(event) {
-  trace('Received message: ' + event.data);
-  receiveTextarea.value = event.data;
+  try {
+    var data = JSON.parse(event.data);
+    if (isInitiator) {
+      posB_x = data.posR;
+    } else {
+      posA_x = data.posR;
+      posP_x = data.posPx;
+      posP_y = data.posPy;
+      if (Math.abs(posP_y) > heightArena) {
+        checkScore(posP_y);
+      }
+    }
+  }
+  catch(e) {
+    trace('Received message: ' + event.data);
+    receiveTextarea.value = event.data;
+  }
 }
 
 function handleSendChannelStateChange() {

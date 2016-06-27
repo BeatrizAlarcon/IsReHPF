@@ -5,36 +5,75 @@ ISRH Práctica Final
   2015-2016
 
   index.html
-  versión: 0.0
+  versión: 1.0
 -->
 
 <html>
 <head>
 
-<meta name='keywords' content='WebRTC, HTML5, JavaScript' />
-<meta name='description' content='WebRTC Reference App' />
+<title>Pong Game</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+<link rel="shortcut icon" href="/pong-icon.jpg" type="image/x-icon" />
+<meta name='keywords' content='WebRTC, HTML5, JavaScript, JQuery, WebGL, Pong' />
+<meta name='description' content='WebRTC - WebGL Pong Game' />
 <meta name='viewport' content='width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1'>
 
 <base target='_blank'>
-
-<title>WebRTC client</title>
-
 <!-- <link rel='stylesheet' href='css/main.css' /> -->
+
+<script id="shader-vs" type="x-shader/x-vertex">
+  attribute vec3 aVertexPosition;
+  attribute vec3 aVertexColor;
+
+  uniform mat4 uMVMatrix;
+  uniform mat4 uPMatrix;
+
+  varying highp vec4 vColor;
+  void main(void) {
+    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+    vColor = vec4(aVertexColor, 1.0);
+  }
+</script>
+<script id="shader-fs" type="x-shader/x-fragment">
+  varying highp vec4 vColor;
+  void main(void) {
+    gl_FragColor = vColor;
+  }
+</script>
 
 </head>
 
 <body>
 
 <div id = "loginUI">
-  <label >Id room</label>
+  <label><h2>Id room</h2></label>
   <input type = "text" id = "idroom"></textarea>
-  <label >User id</label>
+  <label><h2>User id</h2></label>
   <input type = "text" id = "iduser"></textarea>
   <button id = "joinroom">Join room</button>
 </div>
 
-<div id='container'>
-
+<div id='container' hidden="true">
+  <div id = "comunication">
+    <Label id = "message">Wait other user.</label>
+  </div>
+  <div id = score>
+    <Label>Room:</label>
+    <Label id = "Title"></label>
+    <Label>User:</label>
+    <Label id = "yourID"></label>
+    <Label>Score:</label>
+    <Label id = "scoreA"></label>
+    <Label>Enemy:</label>
+    <Label id = "oponentID"></label>
+    <Label>Enemy's score:</label>
+    <Label id = "scoreB"></label>
+  </div>
+  <div>
+    <canvas id="pong" width="300" height="500">
+    Your browser does not support the HTML5 canvas element.
+    </canvas>
+  </div>
   <div id='videos'>
     <video id='localVideo' autoplay muted></video>
     <video id='remoteVideo' autoplay></video>
@@ -49,25 +88,11 @@ ISRH Práctica Final
 
 </div>
 <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.3.2/gl-matrix-min.js"></script-->
+<script src="js/gl-matrix-min.js"></script>
 <script src='/socket.io/socket.io.js'></script>
 <script src='js/adapter.js'></script>
-
-<script>
-var url = "js/main.js";
-$( "#joinroom" ).click(function() {
-  if ($("#idroom").val() !== "") {
-    if ($("#iduser").val() !== "") {
-      $.getScript( url, function() {
-      console.log("Cargo main!!!");
-      });
-    }else{
-      alert("Please enter a username");
-    }
-  }else{
-    alert("It is not possible to access the room ''");
-  }
-});
-</script>
-
+<script src='js/init.js'></script>
+<script src='js/pong.js'></script>
 </body>
 </html>
