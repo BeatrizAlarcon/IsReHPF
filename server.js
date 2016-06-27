@@ -5,19 +5,20 @@ var app = http.createServer(function (req, res) {
   file.serve(req, res);
 }).listen(2015);
 
+var verbose = false;
+
 io = require('socket.io').listen(app);
-var sdp1;
-var publica;
 
 io.sockets.on('connection', function (socket){
-
   // convenience function to log server messages on the client
 	function log(){
-		var array = [">>> Message from server: "];
-	  for (var i = 0; i < arguments.length; i++) {
-	  	array.push(arguments[i]);
-	  }
-	    socket.emit('log', array);
+    if (verbose){
+  		var array = [">>> Message from server: "];
+  	  for (var i = 0; i < arguments.length; i++) {
+  	  	array.push(arguments[i]);
+  	  }
+  	    socket.emit('log', array);
+      }
 	};
 
   function clients(room){
@@ -55,12 +56,35 @@ io.sockets.on('connection', function (socket){
 		socket.broadcast.emit('broadcast(): client ' + socket.id + ' joined room ' + room);
 
 	});
-  socket.on('offer',function (sdpOferta){
-    log("++++ entro en offer +++");
-    socket.broadcast.emit('offer', sdpOferta);
+ socket.on('offer',function (message){
+    log("++++ offer +++");
+    try{
+      //io.sockets.in(room).emit('offer', sdpOffer);
+      socket.broadcast.emit('offerted', message);
+    }catch(e){
+      log("Exception offer: "+ e);
+    }
+    log("++++ end offer +++");
   });
-  socket.on('answer',function (sdpAnswer){
-    log("++++ entro en answer +++");
-    socket.broadcast.emit('answer', sdpAnswer);
+  socket.on('answer',function (message){
+    log("++++ answer +++");
+    try{
+      //io.sockets.in(room).emit('answer', sdpAnswer);
+      socket.broadcast.emit('answered', message);
+    }catch(e){
+      log("Exception answer "+e);
+    }
+    log("++++ end answer +++");
+  });
+
+  socket.on('ICECandidate',function (message){
+    log("++++ ICECandidate +++");
+    try{
+      //io.sockets.in(room).emit('ICECandidate', candidate);
+      socket.broadcast.emit('ICECandidated', message);
+    }catch(e){
+      log("Exception ICECandidate "+e);
+    }
+    log("++++ end ICECandidate +++");
   });
 });
