@@ -25,6 +25,14 @@ ISRH Práctica Final
 
 <body>
 
+<div id = "loginUI">
+  <label >Id room</label>
+  <input type = "text" id = "idroom"></textarea>
+  <label >User id</label>
+  <input type = "text" id = "iduser"></textarea>
+  <button id = "joinroom">Join room</button>
+</div>
+
 <div id='container'>
 
   <div id='videos'>
@@ -40,10 +48,26 @@ ISRH Práctica Final
   <button id="sendButton" disabled>Send</button>
 
 </div>
-
+<script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
 <script src='/socket.io/socket.io.js'></script>
 <script src='js/adapter.js'></script>
-<script src='js/main.js'></script>
+
+<script>
+var url = "js/main.js";
+$( "#joinroom" ).click(function() {
+  if ($("#idroom").val() !== "") {
+    if ($("#iduser").val() !== "") {
+      $.getScript( url, function() {
+      console.log("Cargo main!!!");
+      });
+    }else{
+      alert("Please enter a username");
+    }
+  }else{
+    alert("It is not possible to access the room ''");
+  }
+});
+</script>
 
 </body>
 </html>

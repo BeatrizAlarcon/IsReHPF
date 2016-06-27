@@ -6,14 +6,18 @@
     2015-2016
 
     main.js
-    versión: 0.1
+    versión: 0.2
 */
 
 //---------------------------------- UI ----------------------------------------
 var sendButton = document.getElementById("sendButton");
 var sendTextarea = document.getElementById("dataChannelSend");
 var receiveTextarea = document.getElementById("dataChannelReceive");
+var roomText = document.getElementById("idroom");
+var userText = document.getElementById("iduser");
+var joinRoomButton = document.getElementById("joinroom");
 
+joinRoomButton.disabled = false;
 sendButton.disabled = true;
 sendButton.onclick = sendData;
 
@@ -33,6 +37,8 @@ function enableMessageInterface(shouldEnable) {
 
 
 //------------------------------- declaraciones --------------------------------
+var room;
+var user;
 var sendChannel;
 var isChannelReady;
 var isInitiator;
@@ -43,8 +49,8 @@ var remoteStream;
 var turnReady;
 
 var pc_config = webrtcDetectedBrowser === 'firefox' ?
-  {'iceServers':[{'url':'stun:23.21.150.121'}]} : // number IP
-  {'iceServers': [{'url': 'stun:stun.l.google.com:19302'}]};
+  {'iceServers':[{'url':'stun:23.21.150.121'},{'url': 'turn:numb.viagenie.ca','username':'b.alarcon@alumnos.urjc.es','credential':'pass'}]} :
+  {'iceServers': [{'url': 'stun:stun.l.google.com:19302'},{'url': 'turn:numb.viagenie.ca','username':'b.alarcon@alumnos.urjc.es','credential':'pass'}]};
 
 var pc_constraints = {
   'optional': [
@@ -61,12 +67,6 @@ var sdpConstraints = {'mandatory': {
 
 
 //---------------------------------- AUX ---------------------------------------
-// Gestionar!
-var room = location.pathname.substring(1);
-if (room === '') {
-  room = 'foo';
-}
-
 function log(msg){
   console.log("CM: "+msg);
 }
@@ -76,13 +76,34 @@ function log(msg){
 var socket = io.connect();
 
 // Gestionar!
+room = roomText.value;
+user = userText.value;
+
 if (room !== '') {
   log('Create or join room', room);
   var msg = {roomName : room,
-      userName : "user"};
+      userName : user};
       trace("Emito create or join room "+ msg.roomName +" by "+ msg.userName);
       socket.emit("create or join",JSON.stringify(msg));
 }
+
+/*function joinRoom() {
+  room = roomText.value;
+  user = userText.value;
+  if (room !== "") {
+    if (user !== "") {
+      log('Joining room ' + room + ': user '+ user);
+      var msg = {roomName : room,
+      userName : user};
+      trace("Emito create or join room "+ msg.roomName +" by "+ msg.userName);
+      socket.emit("create or join",JSON.stringify(msg));
+    }else{
+      alert("Please enter a username");
+    }
+  }else{
+    alert("It is not possible to access the room ''");
+  }
+}*/
 
 socket.on('created', function (room){
   log('Created room ' + room);
@@ -166,9 +187,10 @@ var constraints = {audio:true,video: true};
 getUserMedia(constraints, handleUserMedia, handleUserMediaError);
 log('Getting user media with constraints', constraints);
 
-if (location.hostname != "localhost") {
+
+/*if (location.hostname != "localhost") {
   requestTurn('https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913');
-}
+}*/
 
 function maybeStart() {
   if (!isStarted && localStream && isChannelReady) {
@@ -298,7 +320,7 @@ function doCall() {
   constraints = mergeConstraints(constraints, sdpConstraints);
   log('Sending offer to peer, with constraints: \n' +
     '  \'' + JSON.stringify(constraints) + '\'.');
-  pc.createOffer(setLocalAndSendMessage, errorOffer, constraints);
+  pc.createOffer(constraints).then(setLocalAndSendMessage).catch(errorOffer);
 }
 
 function errorOffer(error) {
@@ -307,7 +329,7 @@ function errorOffer(error) {
 
 function doAnswer() {
   log('Sending answer to peer.');
-  pc.createAnswer(setLocalAndSendMessage, errorAnswer, sdpConstraints);
+  pc.createAnswer(sdpConstraints).then(setLocalAndSendMessage).catch(errorAnswer);
 }
 
 function errorAnswer(error) {
@@ -330,7 +352,7 @@ function setLocalAndSendMessage(sessionDescription) {
   sendMessage(sessionDescription);
 }
 
-function requestTurn(turn_url) {
+/*function requestTurn(turn_url) {
   var turnExists = false;
   for (var i in pc_config.iceServers) {
     if (pc_config.iceServers[i].url.substr(0, 5) === 'turn:') {
@@ -357,7 +379,7 @@ function requestTurn(turn_url) {
     xhr.open('GET', turn_url, true);
     xhr.send();
   }
-}
+}*/
 
 function handleRemoteStreamAdded(event) {
   log('Remote stream added.');
@@ -386,7 +408,6 @@ function stop() {
   pc.close();
   pc = null;
 }
-
 
 // Set Opus as the default audio codec if it's present.
 function preferOpus(sdp) {
