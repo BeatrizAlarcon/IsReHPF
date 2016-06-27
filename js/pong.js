@@ -4,8 +4,42 @@
     2015-2016
 
     pong.js
-    versión: 0.0
+    versión: 1.0
 */
+
+//------------------------------ Keys ------------------------------------------
+// e.keyCode == 39 left key
+//e.keyCode == 37 rigth key
+
+$(document).ready(function () {
+    $('body').keydown(function(e){
+        if (e.keyCode == 39) {
+					//console.log("left!!");
+            if (isInitiator) {
+                incrA_x = 0.05;
+            } else {
+                incrB_x = 0.05;
+            }
+        } else if (e.keyCode == 37) {
+					//console.log("rigth!!");
+            if (isInitiator) {
+                incrA_x = -0.05;
+            } else {
+                incrB_x = -0.05;
+            }
+        }
+    });
+    $('body').keyup(function(e){
+        if (e.keyCode == 37 || e.keyCode == 39) {
+            if (isInitiator) {
+                incrA_x = 0.0;
+            } else {
+                incrB_x = 0.0;
+            }
+        }
+    });
+});
+//------------------------------ end Keys --------------------------------------
 
 var gl = null,
 	canvas = null,
@@ -309,8 +343,8 @@ function setupBuffers()
 
 function checkScore(posy) {
     var isA = (posy>0 != isInitiator);
-		console.log("isA ="+ isA);
-		console.log(isInitiator);
+		//console.log("isA ="+ isA);
+		//console.log(isInitiator);
 		if (isA){
 			scoreA += 1;
 			$('#scoreA').html(scoreA);
