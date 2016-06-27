@@ -1,38 +1,49 @@
 <!DOCTYPE html>
+<!--
+ISRH Práctica Final
+  Beatriz Alarcón Iniesta
+  2015-2016
+
+  index.html
+  versión: 0.0
+-->
 
 <html>
+<head>
 
-  <head>
+<meta name='keywords' content='WebRTC, HTML5, JavaScript' />
+<meta name='description' content='WebRTC Reference App' />
+<meta name='viewport' content='width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1'>
 
-    <title>Pong - BAI</title>
-    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-    <link rel="shortcut icon" href="/pong-icon.jpg" type="image/x-icon" />
-    <link rel="stylesheet" href="css/web.css"/>
-    <script src='js/adapter.js'></script>
-    <script src='http://localhost:2015/socket.io/socket.io.js'></script>
+<base target='_blank'>
 
-  </head>
+<title>WebRTC client</title>
 
-  <body>
-    <div>
-      <label >Id room</label>
-      <input type="text" id="idroom"></textarea>
-      <label >User id</label>
-      <input type="text" id="iduser"></textarea>
-      <button id="joinroom">Join room</button>
-    </div>
-    <div>
-      <video id="localVideo" width="300" height="300" autoplay></video>
-      <video id="remoteVideo" width="300" height="300" autoplay></video>
-    </div>
-    <div>
-      <textarea id="localText" disabled placeholder="Press Start, enter some text, then press Send."></textarea>
-      <textarea id="remoteText" disabled></textarea>
-      <p>
-      <button id="sendButton" disabled>Send</button>
-    </div>
-  </body>
+<!-- <link rel='stylesheet' href='css/main.css' /> -->
 
-  <script src="js/main.js"></script>
+</head>
 
+<body>
+
+<div id='container'>
+
+  <div id='videos'>
+    <video id='localVideo' autoplay muted></video>
+    <video id='remoteVideo' autoplay></video>
+  </div>
+
+  <div id='textareas'>
+		<textarea id="dataChannelSend" disabled placeholder="Press Start, enter some text, then press Send."></textarea>
+		<textarea id="dataChannelReceive" disabled></textarea>
+	</div>
+
+  <button id="sendButton" disabled>Send</button>
+
+</div>
+
+<script src='/socket.io/socket.io.js'></script>
+<script src='js/lib/adapter.js'></script>
+<script src='js/main.js'></script>
+
+</body>
 </html>

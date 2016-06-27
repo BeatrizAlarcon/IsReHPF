@@ -1,3 +1,12 @@
+/*  
+    ISRH Práctica Final
+    Beatriz Alarcón Iniesta
+    2015-2016
+
+    server.js
+    versión: 1.0
+*/
+
 var static = require('node-static');
 var http = require('http');
 var file = new(static.Server)();
@@ -56,35 +65,5 @@ io.sockets.on('connection', function (socket){
 		socket.broadcast.emit('broadcast(): client ' + socket.id + ' joined room ' + room);
 
 	});
- socket.on('offer',function (message){
-    log("++++ offer +++");
-    try{
-      //io.sockets.in(room).emit('offer', sdpOffer);
-      socket.broadcast.emit('offerted', message);
-    }catch(e){
-      log("Exception offer: "+ e);
-    }
-    log("++++ end offer +++");
-  });
-  socket.on('answer',function (message){
-    log("++++ answer +++");
-    try{
-      //io.sockets.in(room).emit('answer', sdpAnswer);
-      socket.broadcast.emit('answered', message);
-    }catch(e){
-      log("Exception answer "+e);
-    }
-    log("++++ end answer +++");
-  });
-
-  socket.on('ICECandidate',function (message){
-    log("++++ ICECandidate +++");
-    try{
-      //io.sockets.in(room).emit('ICECandidate', candidate);
-      socket.broadcast.emit('ICECandidated', message);
-    }catch(e){
-      log("Exception ICECandidate "+e);
-    }
-    log("++++ end ICECandidate +++");
-  });
+ 
 });
