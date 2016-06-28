@@ -1,4 +1,5 @@
 'use strict';
+//# sourceURL=foo.js
 
 /*
     ISRH Práctica Final
@@ -53,14 +54,11 @@ var pc;
 var remoteStream;
 var turnReady;
 
-var pc_config = webrtcDetectedBrowser === 'firefox' ?
-  {'iceServers':[{'url':'stun:23.21.150.121'},{'url': 'turn:numb.viagenie.ca','username':'b.alarcon@alumnos.urjc.es','credential':'pass'}]} :
-  {'iceServers': [{'url': 'stun:stun.l.google.com:19302'},{'url': 'turn:numb.viagenie.ca','username':'b.alarcon@alumnos.urjc.es','credential':'pass'}]};
+var pc_config = {'iceServers': [{'url': 'stun:stun.l.google.com:19302'},{'url': 'turn:numb.viagenie.ca','username':'b.alarcon@alumnos.urjc.es','credential':'pass'}]};
 
 var pc_constraints = {
   'optional': [
-    {'DtlsSrtpKeyAgreement': true},
-    {'RtpDataChannels': true}
+    {'DtlsSrtpKeyAgreement': true}
   ]};
 
 // Set up audio and video regardless of what devices are present.
@@ -72,8 +70,11 @@ var sdpConstraints = {'mandatory': {
 
 
 //---------------------------------- AUX ---------------------------------------
-function log(msg){
-  console.log("CM: "+msg);
+function log(msg,msg2){
+  if(msg==undefined){
+    msg="";
+  }
+  console.log("CM: "+msg+ "-" +msg2);
 }
 //---------------------------------- end AUX -----------------------------------
 
@@ -113,6 +114,7 @@ socket.on('join', function (message){
   roomTitle.innerHTML = "<h4>"+room+"</h4>";
   yourID.innerHTML = "<h4>"+user+"</h4>";
   oponentID.innerHTML = "<h4>"+oponent+"</h4>";
+  maybeStart();
 });
 
 socket.on('joined', function (message){
@@ -126,6 +128,7 @@ socket.on('joined', function (message){
   roomTitle.innerHTML = "<h4>"+room+"</h4>";
   yourID.innerHTML = "<h4>"+user+"</h4>";
   oponentID.innerHTML = "<h4>"+oponent+"</h4>";
+  maybeStart();
 });
 
 socket.on('log', function (array){
@@ -140,7 +143,7 @@ function sendMessage(message){
 socket.on('message', function (message){
   log('Received message:', message);
   if (message === 'got user media') {
-  	maybeStart();
+  	//maybeStart();
   } else if (message.type === 'offer') {
     if (!isInitiator && !isStarted) {
       maybeStart();
@@ -172,10 +175,10 @@ function handleUserMedia(stream) {
   if (localStream.getAudioTracks().length > 0) {
     trace('Using audio device: ' + localStream.getAudioTracks()[0].label);
   }
-  sendMessage('got user media');
-  if (isInitiator) {
+  //sendMessage('got user media');
+  /*if (isInitiator) {
     maybeStart();
-  }
+  }*/
 }
 
 function handleUserMediaError(error){
@@ -193,6 +196,7 @@ log('Getting user media with constraints', constraints);
 }*/
 
 function maybeStart() {
+  console.log("!isStarted= "+!isStarted+" && localStream= "+localStream+" && isChannelReady="+isChannelReady+"=>"+!isStarted && localStream && isChannelReady);
   if (!isStarted && localStream && isChannelReady) {
     createPeerConnection();
     pc.addStream(localStream);
@@ -238,9 +242,13 @@ function createPeerConnection() {
     }
     sendChannel.onopen = handleSendChannelStateChange;
     sendChannel.onclose = handleSendChannelStateChange;
+    sendChannel.onerror = handleSendChannelError;
   } else {
     pc.ondatachannel = gotReceiveChannel;
   }
+}
+function handleSendChannelError(event){
+  console.error("********************************** Send Channel Error "+ event);
 }
 
 function sendData() {

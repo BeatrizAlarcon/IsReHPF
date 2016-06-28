@@ -14,7 +14,7 @@ var app = http.createServer(function (req, res) {
   file.serve(req, res);
 }).listen(2015);
 
-var verbose = false;
+var verbose = true;
 var creatorName ;
 
 io = require('socket.io').listen(app);
@@ -42,31 +42,34 @@ io.sockets.on('connection', function (socket){
 	});
 
   socket.on('create or join', function (message) {
-    var msg = JSON.parse(message);
-    var room = msg.roomName;
-    var numClients = clients(msg.roomName);
+    try{
+      var msg = JSON.parse(message);
+      var room = msg.roomName;
+      var numClients = clients(msg.roomName);
 
-    log('Room ' + room + ' has ' + numClients + ' client(s)');
-		log('Request to create or join room', room);
+      log('Room ' + room + ' has ' + numClients + ' client(s)');
+  		log('Request to create or join room', room);
 
-		if (numClients == 0){
-			socket.join(room);
-			socket.emit('created', message);
-      creatorName = msg.userName;
-      log('Now: Room ' + room + ' has ' + clients(room) + ' client(s)');
-		} else if (numClients == 1) {
-			io.sockets.in(room).emit('join', message);
-			socket.join(room);
-      msg.userName = creatorName;
-			socket.emit('joined', JSON.stringify(msg));
-      log('Now: Room ' + room + ' has ' + clients(room) + ' client(s)');
-		} else { // max two clients
-			socket.emit('full', message);
-      log('Full: Room ' + room + ' has ' + clients(room) + ' client(s)');
-		}
-		socket.emit('emit(): client ' + socket.id + ' joined room ' + room);
-		socket.broadcast.emit('broadcast(): client ' + socket.id + ' joined room ' + room);
-
+  		if (numClients == 0){
+  			socket.join(room);
+  			socket.emit('created', message);
+        creatorName = msg.userName;
+        log('Now: Room ' + room + ' has ' + clients(room) + ' client(s)');
+  		} else if (numClients == 1) {
+  			io.sockets.in(room).emit('join', message);
+  			socket.join(room);
+        msg.userName = creatorName;
+  			socket.emit('joined', JSON.stringify(msg));
+        log('Now: Room ' + room + ' has ' + clients(room) + ' client(s)');
+  		} else { // max two clients
+  			socket.emit('full', message);
+        log('Full: Room ' + room + ' has ' + clients(room) + ' client(s)');
+  		}
+  		socket.emit('emit(): client ' + socket.id + ' joined room ' + room);
+  	  socket.broadcast.emit('broadcast(): client ' + socket.id + ' joined room ' + room);
+    }catch(e){
+      log("Catch exception: "+ e);
+    }
 	});
 
 });
