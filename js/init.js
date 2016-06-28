@@ -14,7 +14,6 @@ $( "#joinroom" ).click(function() {
       $.getScript( url, function() {
       console.log("Cargo main!!!");
       $("#loginUI").hide();
-      $("#container").show();
       });
     }else{
       alert("Please enter a username");

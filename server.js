@@ -1,10 +1,10 @@
-/*  
+/*
     ISRH Práctica Final
     Beatriz Alarcón Iniesta
     2015-2016
 
     server.js
-    versión: 1.0
+    versión: 2.0
 */
 
 var static = require('node-static');
@@ -15,6 +15,7 @@ var app = http.createServer(function (req, res) {
 }).listen(2015);
 
 var verbose = false;
+var creatorName ;
 
 io = require('socket.io').listen(app);
 
@@ -51,11 +52,13 @@ io.sockets.on('connection', function (socket){
 		if (numClients == 0){
 			socket.join(room);
 			socket.emit('created', message);
+      creatorName = msg.userName;
       log('Now: Room ' + room + ' has ' + clients(room) + ' client(s)');
 		} else if (numClients == 1) {
 			io.sockets.in(room).emit('join', message);
 			socket.join(room);
-			socket.emit('joined', message);
+      msg.userName = creatorName;
+			socket.emit('joined', JSON.stringify(msg));
       log('Now: Room ' + room + ' has ' + clients(room) + ' client(s)');
 		} else { // max two clients
 			socket.emit('full', message);
@@ -65,5 +68,5 @@ io.sockets.on('connection', function (socket){
 		socket.broadcast.emit('broadcast(): client ' + socket.id + ' joined room ' + room);
 
 	});
- 
+
 });

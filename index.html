@@ -19,7 +19,7 @@ ISRH Práctica Final
 <meta name='viewport' content='width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1'>
 
 <base target='_blank'>
-<!-- <link rel='stylesheet' href='css/main.css' /> -->
+<link rel='stylesheet' href='css/web.css' />
 
 <script id="shader-vs" type="x-shader/x-vertex">
   attribute vec3 aVertexPosition;
@@ -45,50 +45,88 @@ ISRH Práctica Final
 
 <body>
 
-<div id = "loginUI">
-  <label><h2>Id room</h2></label>
-  <input type = "text" id = "idroom"></textarea>
-  <label><h2>User id</h2></label>
-  <input type = "text" id = "iduser"></textarea>
-  <button id = "joinroom">Join room</button>
+<div class="vertical-container " id = "loginUI">
+    <section class="form-vertical">
+      <div class="form-group">
+      <label class="col-sm-6 control-label"><h3>Id room</h3></label>
+      <div class="col-sm-10">
+      <input class="form-control" type = "text" id = "idroom"></textarea>
 </div>
+</div>
+<div class="form-group">
 
+      <label class="col-sm-6 control-label"><h3>User id</h3></label>
+        <div class="col-sm-10">
+      <input class="form-control" type = "text" id = "iduser"></textarea>
+</div>
+</div>
+<div class="form-group">
+    <div class="col-sm-10">
+      <button class="btn btn-default btn-lg" id = "joinroom">Join room</button>
+    </div>
+    </div>
+    </section>
+</div>
+<div class="vertical-container " id = "comunication" hidden="true">
+  <Label class="control-label" id = "message"><h3>Wait other user.</h3></label>
+  <p></p>
+  <IMG SRC="loading.gif" width="80" height="80" style="margin-left: 40px;">
+</div>
 <div id='container' hidden="true">
-  <div id = "comunication">
-    <Label id = "message">Wait other user.</label>
-  </div>
-  <div id = score>
-    <Label>Room:</label>
-    <Label id = "Title"></label>
-    <Label>User:</label>
-    <Label id = "yourID"></label>
-    <Label>Score:</label>
-    <Label id = "scoreA"></label>
-    <Label>Enemy:</label>
-    <Label id = "oponentID"></label>
-    <Label>Enemy's score:</label>
-    <Label id = "scoreB"></label>
-  </div>
-  <div>
-    <canvas id="pong" width="300" height="500">
-    Your browser does not support the HTML5 canvas element.
+  <span>
+    <div class = "panel contenedor" id = score>
+      <Label><h3>Room:</h3></label>
+      <Label id = "Title"></label>
+      </p>
+      <table class="normal">
+        <tr>
+          <th><Label><h4>User:</h4></label></th>
+          <th><Label ><h4>Score:</h4></label></th>
+        </tr>
+        <tr>
+          <th><Label id = "yourID"></label></th>
+          <th><Label id = "scoreA"></label></th>
+        </tr>
+        <tr>
+          <th><Label id = "oponentID"></label></th>
+          <th><Label id = "scoreB"></label></th>
+        </tr>
+      </table>
+
+    </div>
+    <div id = "canvas" class='contenedor'>
+    <canvas  id="pong">
+      Your browser does not support the HTML5 canvas element.
     </canvas>
-  </div>
-  <div id='videos'>
+    </div>
+  </span>
+
+  <div id='videos' class='contenedor'>
     <video id='localVideo' autoplay muted></video>
     <video id='remoteVideo' autoplay></video>
   </div>
-
-  <div id='textareas'>
-		<textarea id="dataChannelSend" disabled placeholder="Press Start, enter some text, then press Send."></textarea>
-		<textarea id="dataChannelReceive" disabled></textarea>
-	</div>
-
-  <button id="sendButton" disabled>Send</button>
-
+  <span id='textareas' class='contenedor'>
+    <textarea id="dataChannelSend" class="channel" disabled placeholder="Press Start, enter some text, then press Send."></textarea>
+    <textarea id="dataChannelReceive" class="channel" disabled></textarea>
+    <button id="sendButton" disabled>Send</button>
+  </span>
 </div>
+
+
+<footer id="footer">
+      <p>Posted by: Beatriz Alarcón </p>
+      <p>Contact information: <a href="mailto:b.alarcon@alumnos.urjc.es">
+        b.alarcon@alumnos.urjc.es</a>.</p>
+</footer>
+
 <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
 <!--script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.3.2/gl-matrix-min.js"></script-->
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 <script src="js/gl-matrix-min.js"></script>
 <script src='/socket.io/socket.io.js'></script>
 <script src='js/adapter.js'></script>

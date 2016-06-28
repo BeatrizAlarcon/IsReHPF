@@ -186,10 +186,10 @@ function initShaders()
 {
 	//get shader source
 	var fs_source = document.getElementById('shader-fs').innerHTML,
-		vs_source = document.getElementById('shader-vs').innerHTML;
+	vs_source = document.getElementById('shader-vs').innerHTML;
 
 	//compile shaders
-    vertexShader = makeShader(vs_source, gl.VERTEX_SHADER);
+  vertexShader = makeShader(vs_source, gl.VERTEX_SHADER);
 	fragmentShader = makeShader(fs_source, gl.FRAGMENT_SHADER);
 
 	//create program
@@ -223,71 +223,73 @@ function makeShader(src, type)
 
 function setupBuffers()
 {
-	var triangleVerticeColorBlue = [
-		//front face
-		 0.0, 0.0, 1.0,
-		 1.0, 1.0, 1.0,
-		 0.0, 0.0, 1.0,
-		 0.0, 0.0, 1.0,
-		 0.0, 0.0, 1.0,
-		 1.0, 1.0, 1.0,
 
-		//rear face
-		 0.0, 1.0, 1.0,
-		 1.0, 1.0, 1.0,
-		 0.0, 1.0, 1.0,
-		 0.0, 1.0, 1.0,
-		 0.0, 1.0, 1.0,
-		 1.0, 1.0, 1.0
-	];
 
+  var triangleVerticeColorGreen = [
+  //front face
+   0.0, 1.0, 0.0,
+   1.0, 1.0, 0.0,
+   1.0, 1.0, 0.0,
+   1.0, 1.0, 0.0,
+   1.0, 1.0, 0.0,
+   1.0, 1.0, 0.0,
+
+  //rear face
+   0.0, 1.0, 1.0,
+   0.0, 1.0, 1.0,
+   0.0, 1.0, 1.0,
+   0.0, 1.0, 1.0,
+   0.0, 1.0, 1.0,
+   0.0, 1.0, 1.0
+  ];
     trianglesColorBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, trianglesColorBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVerticeColorBlue), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVerticeColorGreen), gl.STATIC_DRAW);
 
-    var triangleVerticeColorPink = [
-		//front face
-		 1.0, 0.0, 1.0,
-		 1.0, 1.0, 1.0,
-		 1.0, 0.0, 1.0,
-		 1.0, 0.0, 1.0,
-		 1.0, 0.0, 1.0,
-		 1.0, 1.0, 1.0,
+  var triangleVerticeColorBlue = [
+    //front face
+     0.0, 0.0, 1.0,
+     1.0, 1.0, 1.0,
+     0.0, 0.0, 1.0,
+     0.0, 0.0, 1.0,
+     0.0, 0.0, 1.0,
+     1.0, 1.0, 1.0,
 
-		//rear face
-		 1.0, 1.0, 1.0,
-		 1.0, 1.0, 1.0,
-		 1.0, 1.0, 1.0,
-		 1.0, 1.0, 1.0,
-		 1.0, 1.0, 1.0,
-		 1.0, 1.0, 1.0
-	];
+    //rear face
+     0.0, 1.0, 1.0,
+     1.0, 1.0, 1.0,
+     0.0, 1.0, 1.0,
+     0.0, 1.0, 1.0,
+     0.0, 1.0, 1.0,
+     1.0, 1.0, 1.0
+  ];
 
 	trianglesColorBuffer2 = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, trianglesColorBuffer2);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVerticeColorPink), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVerticeColorBlue), gl.STATIC_DRAW);
 
-    var triangleVerticeColorGreen = [
-		//front face
-		 0.0, 1.0, 0.0,
-		 1.0, 1.0, 0.0,
-		 1.0, 1.0, 0.0,
-		 1.0, 1.0, 0.0,
-		 1.0, 1.0, 0.0,
-		 1.0, 1.0, 0.0,
 
-		//rear face
-		 0.0, 1.0, 1.0,
-		 0.0, 1.0, 1.0,
-		 0.0, 1.0, 1.0,
-		 0.0, 1.0, 1.0,
-		 0.0, 1.0, 1.0,
-		 0.0, 1.0, 1.0
-	];
+  var triangleVerticeColorPink = [
+  //front face
+   1.0, 0.0, 1.0,
+   1.0, 1.0, 1.0,
+   1.0, 0.0, 1.0,
+   1.0, 0.0, 1.0,
+   1.0, 0.0, 1.0,
+   1.0, 1.0, 1.0,
+
+  //rear face
+   1.0, 1.0, 1.0,
+   1.0, 1.0, 1.0,
+   1.0, 1.0, 1.0,
+   1.0, 1.0, 1.0,
+   1.0, 1.0, 1.0,
+   1.0, 1.0, 1.0
+];
 
 	trianglesColorBuffer3 = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, trianglesColorBuffer3);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVerticeColorGreen), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVerticeColorPink), gl.STATIC_DRAW);
 
 	//8 vertices
 	var triangleVertices = [

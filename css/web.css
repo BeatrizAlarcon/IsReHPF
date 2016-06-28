@@ -1,0 +1,62 @@
+.vertical-container {
+  height: 500px;
+  width: inherit;
+  display: -webkit-flex;
+  display:         flex;
+  -webkit-align-items: center;
+          align-items: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+}
+
+#joinroom{
+  margin-top: 30px;
+}
+
+#score{
+  margin: 20px;
+  border-width: 10px;
+  width: 280px;
+}
+#footer{
+  margin:20px;
+  clear: left;
+}
+
+#textareas{
+  clear: left;
+}
+
+#videos{
+  clear: left;
+  width="400";
+  height="300";
+}
+
+#canvas{
+  float:right;
+}
+
+#pong{
+  width: 300px;
+  height: 700px;
+}
+
+.normal th, td {
+    border-bottom: 1px solid #ddd;
+    text-align: center;;
+}
+.normal {
+  width: 250px;
+  border: 1px solid #000;
+}
+
+.channel{
+  width: 400px;
+  height: 80px;
+}
+
+.contenedor{
+  margin: 20px;
+  float:left;
+}

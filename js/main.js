@@ -6,16 +6,23 @@
     2015-2016
 
     main.js
-    versión: 0.2
+    versión: 1.0
 */
 
 //---------------------------------- UI ----------------------------------------
+var localVideo = document.querySelector('#localVideo');
+var remoteVideo = document.querySelector('#remoteVideo');
 var sendButton = document.getElementById("sendButton");
 var sendTextarea = document.getElementById("dataChannelSend");
 var receiveTextarea = document.getElementById("dataChannelReceive");
 var roomText = document.getElementById("idroom");
 var userText = document.getElementById("iduser");
 var joinRoomButton = document.getElementById("joinroom");
+var waitmsg = document.getElementById("comunication");
+var container = document.getElementById("container");
+var roomTitle = document.getElementById("Title");
+var yourID = document.getElementById("yourID");
+var oponentID = document.getElementById("oponentID");
 
 joinRoomButton.disabled = false;
 sendButton.disabled = true;
@@ -32,9 +39,7 @@ function enableMessageInterface(shouldEnable) {
     sendButton.disabled = true;
   }
 }
-
 //-------------------------------- end UI --------------------------------------
-
 
 //------------------------------- declaraciones --------------------------------
 var room;
@@ -86,42 +91,41 @@ if (room !== '') {
       socket.emit("create or join",JSON.stringify(msg));
 }
 
-/*function joinRoom() {
-  room = roomText.value;
-  user = userText.value;
-  if (room !== "") {
-    if (user !== "") {
-      log('Joining room ' + room + ': user '+ user);
-      var msg = {roomName : room,
-      userName : user};
-      trace("Emito create or join room "+ msg.roomName +" by "+ msg.userName);
-      socket.emit("create or join",JSON.stringify(msg));
-    }else{
-      alert("Please enter a username");
-    }
-  }else{
-    alert("It is not possible to access the room ''");
-  }
-}*/
-
-socket.on('created', function (room){
-  log('Created room ' + room);
+socket.on('created', function (message){
+  log('Created room ' + message);
   isInitiator = true;
+  waitmsg.hidden = false;
 });
 
 socket.on('full', function (room){
   log('Room ' + room + ' is full');
 });
 
-socket.on('join', function (room){
+socket.on('join', function (message){
+  var msg = JSON.parse(message);
+  var room = msg.roomName;
+  var oponent = msg.userName;
   log('Another peer made a request to join room ' + room);
   log('This peer is the initiator of room ' + room + '!');
   isChannelReady = true;
+  waitmsg.hidden = true;
+  container.hidden = false;
+  roomTitle.innerHTML = "<h4>"+room+"</h4>";
+  yourID.innerHTML = "<h4>"+user+"</h4>";
+  oponentID.innerHTML = "<h4>"+oponent+"</h4>";
 });
 
-socket.on('joined', function (room){
-  log('This peer has joined room ' + room);
+socket.on('joined', function (message){
+  var msg = JSON.parse(message);
+  var room = msg.roomName;
+  var oponent = msg.userName;
+  log('This peer has joined room ' + message);
   isChannelReady = true;
+  waitmsg.hidden = true;
+  container.hidden = false;
+  roomTitle.innerHTML = "<h4>"+room+"</h4>";
+  yourID.innerHTML = "<h4>"+user+"</h4>";
+  oponentID.innerHTML = "<h4>"+oponent+"</h4>";
 });
 
 socket.on('log', function (array){
@@ -158,9 +162,6 @@ socket.on('message', function (message){
 
 
 //----------------------------- manager -----------------------------------------
-var localVideo = document.querySelector('#localVideo');
-var remoteVideo = document.querySelector('#remoteVideo');
-
 function handleUserMedia(stream) {
   localStream = stream;
   attachMediaStream(localVideo, stream);
@@ -420,6 +421,8 @@ function handleRemoteHangup() {
   log('----------- Session terminated.');
   stop();
   isInitiator = false;
+  waitmsg.hidden = false;
+  container.hidden = true;
 }
 
 function stop() {
